@@ -39,6 +39,34 @@
 package require ::quartus::project
 package require ::quartus::flow
 package require ::quartus::misc
+package require cmdline
+
+proc make_all_pins_virtual { args } {
+
+    set options {
+        { "exclude.arg" "" "List of signals to exclude" }
+    }
+    array set opts [::cmdline::getoptions args $options]
+
+    remove_all_instance_assignments -name VIRTUAL_PIN
+    set name_ids [get_names -filter * -node_type pin]
+
+    foreach_in_collection name_id $name_ids {
+        set pin_name [get_name_info -info full_path $name_id]
+
+        set count 0
+        foreach patt $opts(exclude) {
+            incr count [string match $patt $pin_name]
+        }
+        if { $count == 0 } {
+            post_message "Making VIRTUAL_PIN assignment to $pin_name"
+            set_instance_assignment -to $pin_name -name VIRTUAL_PIN ON
+        } else {
+            post_message "Skipping VIRTUAL_PIN assignment to $pin_name"
+        }
+    }
+    export_assignments
+}
 
 proc to_parameter_string {input_dict} {
   dict with input_dict {
@@ -132,15 +160,6 @@ foreach floorplan $env(FLOORPLAN) {
 set_global_assignment -name QIC_EXPORT_FILE $module.qxp
 set_global_assignment -name QIC_EXPORT_NETLIST_TYPE POST_FIT
 set_global_assignment -name QIC_EXPORT_ROUTING OFF
-#set_instance_assignment -name VIRTUAL_PIN ON -to accel
-#set_instance_assignment -name VIRTUAL_PIN ON -to at_altera
-#set_instance_assignment -name VIRTUAL_PIN ON -to clk
-#set_instance_assignment -name VIRTUAL_PIN ON -to dir
-#set_instance_assignment -name VIRTUAL_PIN ON -to dir[0]
-#set_instance_assignment -name VIRTUAL_PIN ON -to dir[1]
-#set_instance_assignment -name VIRTUAL_PIN ON -to get_ticket
-#set_instance_assignment -name VIRTUAL_PIN ON -to reset
-#set_instance_assignment -name VIRTUAL_PIN ON -to speed_too_fast
 
 export_assignments
 
@@ -155,6 +174,9 @@ if {[catch {execute_module -tool map -args "$component_parameters"} result]} {
     project_close
     exit 1
 }
+
+# mark all pins virtual, except CLK*
+make_all_pins_virtual -exclude { CLK* *pcie_rx_p* *pcie_tx_p* altera_reserved* }
 
 # quartus_cdb --merge=on $MODULE
 set quartus_cdb_args [dict create]
