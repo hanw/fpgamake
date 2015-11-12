@@ -448,6 +448,7 @@ def write_altera_makefile():
                                        'report_nworst_timing_paths': options.report_nworst_timing_paths,
                                        })
 
+    subinst = []
     # Generate lower level project
     for module in module_instances:
         # skip top level module

@@ -132,7 +132,7 @@ puts $module_netlists
 foreach partition $partitions netlist $module_netlists subinst $subinsts {
     puts $partition
     puts $netlist
-    set_global_assignment -name PARTITION_NETLIST_TYPE IMPORTED -section_id $partition
+    set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id $partition
     set_global_assignment -name PARTITION_IMPORT_FILE $netlist -section_id $partition
     set_global_assignment -name PARTITION_IMPORT_EXISTING_LOGICLOCK_REGIONS REPLACE_CONFLICTING -section_id $partition
     set_instance_assignment -name PARTITION_HIERARCHY $subinst -to $partition -section_id $partition
