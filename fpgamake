@@ -355,6 +355,7 @@ TopDown_STUBS = %(module_stubs)s
 TopDown_SDC = %(constraint_files)s
 TopDown_NETLISTS = %(module_synth_netlists)s
 TopDown_IP = %(xcifiles)s
+TopDown_STP = %(stpfiles)s
 TopDown_PARTITIONS = %(partitions)s
 TopDown_SUBINST = %(subinst)s
 TopDown_PRTOP = %(prtop)s
@@ -516,6 +517,7 @@ def write_altera_makefile():
                    'vhdlibraries': ' '.join(set(vhdl_libraries_used[module])) if module in vhdl_libraries_used else '',
                    'module_stubs': ' '.join(module_stubs),
                    'xcifiles': ' '.join(options.xci),
+                   'stpfiles': ' '.join(options.chipscope),
                    'partitions' : ' '.join(partitions),
                    'subinst': ' '.join(subinst),
                    'oocxdc': ' '.join([' '.join(['Impl/%(inst)s/%(inst)s-ooc-clocks.xdc Impl/%(inst)s/%(inst)s-ooc.xdc'
